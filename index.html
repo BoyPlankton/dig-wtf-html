@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="BoyPlankton (Vincent Marcus)">
+    <title>dig.wtf</title>
+    
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    
+    <meta name="theme-color" content="#7952b3">
+  </head>
+  <body>
+    <header>
+      <div class="collapse bg-dark" id="navbarHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-8 col-md-7 py-4">
+              <h4 class="text-white">About</h4>
+              <p class="text-muted">I just wanted a mobile-friendly site that let's me do a dig command. This is the third version of that site.</p>
+            </div>
+            <div class="col-sm-4 offset-md-1 py-4">
+              <ul class="list-unstyled">
+              <li><a href="https://twitter.com/BoyPlankton" class="text-white"><i class="bi bi-twitter"></i></a></li>
+              <li><a href="https://www.facebook.com/vincent.marcus" class="text-white"><i class="bi bi-facebook"></i></a></li>
+              <li><a href="https://www.linkedin.com/in/vcm/" class="text-white"><i class="bi bi-linkedin"></i></a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="navbar navbar-dark bg-dark shadow-sm">
+        <div class="container">
+          <a href="/" class="navbar-brand d-flex align-items-center">
+            <strong>dig.wtf</strong>
+          </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+      </div>
+    </header>
+    <main>
+      <div class="container">
+        <br/>
+        <div class="row justify-content-center">
+          <div class="col-12 col-md-10 col-lg-8">
+            <form class="card card-sm" id="searchForm">
+              <div class="card-body row no-gutters align-items-center">
+                <div class="col">
+                  <input class="form-control form-control-lg form-control-borderless" type="search" placeholder="hostname" name="hostname" autocomplete="off">
+                </div>
+                <div class="col-auto">
+                  <button class="btn btn-lg btn-success" type="submit">dig</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <br/>
+      <div class="container" id="results">
+      </div>
+    </main>
+    
+    <!-- the index container -->
+    <script type="text/template" id="digTemplate">
+      <% if (_.isEmpty(results)){ %>
+        <div class="alert alert-warning">
+          <p>No results found.</p>
+        </div>
+      <% } else { %>
+        <div class="container" id="result_header">
+          <br/>
+          <div class="row">
+            <div class="col-sm-2 d-none d-sm-block">
+              <b>Name</b>
+            </div>
+            <div class="col-2 col-sm-1">
+              <b>TTL</b>
+            </div>
+            <div class="col-md-1 d-none d-md-block">
+              <b>Class</b>
+            </div>
+            <div class="col-2 col-sm-1">
+              <b>Type</b>
+            </div>
+            <div class="col-8 col-md-7">
+              <b>Values</b>
+            </div>
+          </div>
+        </div>
+        <div class="container" id="result">
+          <% _.each(results, function (result) { %>
+            <div class="row">
+              <div class="col-sm-2 d-none d-sm-block"><%= result.name %></div>
+              <div class="col-2 col-sm-1"><%= result.ttl %></div>
+              <div class="col-md-1 d-none d-md-block"><%= result.class %></div>
+              <div class="col-2 col-sm-1"><%= result.values[0].name %></div>
+              <div class="col-8 col-md-7">
+                <% _.each(result.values, function (value) { %>
+                  <div><%= value.value %></div>
+                <% }); %>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } %>
+    </script>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.12.0/underscore-min.js" integrity="sha512-BDXGXSvYeLxaldQeYJZVWXJmkisgMlECofWFXKpWwXnfcp/R708nrs/BtNLH5cb/5TE7aeYRTDBRXu6kRL4VeQ==" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.4.0/backbone-min.js" integrity="sha512-9EgQDzuYx8wJBppM4hcxK8iXc5a1rFLp/Chug4kIcSWRDEgjMiClF8Y3Ja9/0t8RDDg19IfY5rs6zaPS9eaEBw==" crossorigin="anonymous"></script>
+    
+    <script src="js/dig.wtf.js"></script>
+    <script type="text/javascript">
+      var app = new APP.DigRouter();
+    </script>
+  </body>
+</html>
