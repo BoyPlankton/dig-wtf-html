@@ -52,7 +52,7 @@ APP.DigCollection = Backbone.Collection.extend({
       result.set('_id', index);
       result.set('name', item['name']);
       result.set('ttl', item['TTL']);
-      result.set('type', item['clasclass']);
+      result.set('class', item['type']);
       result.set('values', item['data']);
       
       self.push(result);
