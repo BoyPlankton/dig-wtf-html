@@ -48,7 +48,9 @@ APP.DigCollection = Backbone.Collection.extend({
 
     _.each(data, function(item, index){
       var result = new self.model();
-      
+
+	console.log(item);
+
       result.set('_id', index);
       result.set('name', item['name']);
       result.set('ttl', item['TTL']);
