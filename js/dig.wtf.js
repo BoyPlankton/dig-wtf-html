@@ -21,7 +21,7 @@ APP.DigRouter = Backbone.Router.extend({
   dig: function (host) {
     var self = this;
     
-    this.collection.url = '/d/' + host;
+    this.collection.url = '/v3/' + host;
     
     this.collection.fetch({
       reset: true,
