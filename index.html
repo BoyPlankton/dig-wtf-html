@@ -94,10 +94,10 @@
         <div class="container" id="result">
           <% _.each(results, function (result) { %>
             <div class="row">
-              <div class="col-sm-2 d-none d-sm-block"><%= result.name %></div>
-              <div class="col-2 col-sm-1"><%= result.ttl %></div>
-              <div class="col-2 col-sm-1"><%= result.type %></div>
-              <div class="col-8 col-md-8"><%= result.value %></div>
+              <div class="col-sm-2 d-none d-sm-block text-wrap"><%= result.name %></div>
+              <div class="col-2 col-sm-1 text-wrap"><%= result.ttl %></div>
+              <div class="col-2 col-sm-1 text-wrap"><%= result.type %></div>
+              <div class="col-8 col-md-8 text-wrap"><%= result.value %></div>
             </div>
           <% }); %>
         </div>
