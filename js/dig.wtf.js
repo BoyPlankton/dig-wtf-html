@@ -177,13 +177,7 @@ APP.DigRouter = Backbone.Router.extend({
 
           response.answers.forEach( answer => {
             console.log(answer);
-            this.collection.add(new APP.DigModel({
-              name: answer.name, 
-              ttl: answer.ttl, 
-              type: answer.type, 
-              value: answer.data
-            }));
-
+            this.collection.add(new APP.DigModel( parseAnswer(answer) ));
             this.resultview.render();
           });
         })
