@@ -70,7 +70,6 @@ APP.DigRouter = Backbone.Router.extend({
       3: "MD",
       4: "MF",
       5: "CNAME",
-      6: "SOA",
       7: "MB",
       8: "MG",
       9: "MR",
@@ -154,15 +153,15 @@ APP.DigRouter = Backbone.Router.extend({
     };
     */
 
-    const type_map = {
-      1: "A",
-      2: "NS",
-      5: "CNAME",
-      12: "PTR",
-      15: "MX",
-      16: "TXT",
-      28: "AAAA"
-    };
+    const types = [
+      "A",
+      "AAAA",
+      "NS",
+      "MX",
+      "TXT",
+      "SOA",
+      "CNAME"
+    ];
 
     console.log(host);
 
@@ -170,7 +169,7 @@ APP.DigRouter = Backbone.Router.extend({
 
     this.collection.reset();
 
-    Object.values(type_map).forEach( v => {
+    types.forEach( v => {
       resolver.query(host, v, "POST", null, timeout)
         .then(response => {
           console.log(JSON.stringify(response, null, 4));
