@@ -158,8 +158,7 @@ APP.DigRouter = Backbone.Router.extend({
       "NS",
       "MX",
       "TXT",
-      "SOA",
-      "CNAME"
+      "SOA"
     ];
 
     console.log(host);
@@ -168,25 +167,29 @@ APP.DigRouter = Backbone.Router.extend({
 
     this.collection.reset();
 
-    types.forEach( v => {
-      resolver.query(host, v, "POST", null, timeout)
-        .then(response => {
-          console.log(JSON.stringify(response, null, 4));
+    // if there's a CNAME then there isn't anything else.
+    resolver.query(host, "CNAME", "POST", null, timeout)
+    .then(response => {
+      console.log(JSON.stringify(response, null, 4));
 
-          if (response.answers.length > 0) {
-            this.collection.add(new APP.DigModel(parseAnswers(response.answers)));
-            this.resultview.render();
-          }
-          
-          /*
-          response.answers.forEach( answer => {
-            console.log(answer);
-            this.collection.add(new APP.DigModel( parseAnswer(answer) ));
-            this.resultview.render();
-          });
-          */
-        })
-        .catch(console.error);
-    });
+      if (response.answers.length > 0) {
+        this.collection.add(new APP.DigModel(parseAnswers(response.answers)));
+        this.resultview.render();
+      } else {
+        types.forEach( v => {
+          resolver.query(host, v, "POST", null, timeout)
+            .then(response => {
+              console.log(JSON.stringify(response, null, 4));
+    
+              if (response.answers.length > 0) {
+                this.collection.add(new APP.DigModel(parseAnswers(response.answers)));
+                this.resultview.render();
+              }
+            })
+            .catch(console.error);
+        });    
+      }
+    })
+    .catch(console.error);
   }
 });
