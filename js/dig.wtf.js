@@ -36,7 +36,6 @@ APP.DigResultsView = Backbone.View.extend({
   render: function(){
     var results = {results: []}
     this.collection.forEach( c => {
-      console.log(c.attributes);
       results.results.push(c.attributes);
     })
     this.$el.html(this.template(results));
@@ -174,11 +173,18 @@ APP.DigRouter = Backbone.Router.extend({
         .then(response => {
           console.log(JSON.stringify(response, null, 4));
 
+          if (response.answers.length > 0) {
+            this.collection.add(new APP.DigModel(parseAnswers(response.answers)));
+            this.resultview.render();
+          }
+          
+          /*
           response.answers.forEach( answer => {
             console.log(answer);
             this.collection.add(new APP.DigModel( parseAnswer(answer) ));
             this.resultview.render();
           });
+          */
         })
         .catch(console.error);
     });

@@ -74,33 +74,22 @@
           <p>No results found.</p>
         </div>
       <% } else { %>
-        <div class="container" id="result_header">
-          <br/>
-          <div class="row">
-            <div class="col-sm-2 d-none d-sm-block">
-              <b>Name</b>
-            </div>
-            <div class="col-2 col-sm-1">
-              <b>TTL</b>
-            </div>
-            <div class="col-2 col-sm-1">
-              <b>Type</b>
-            </div>
-            <div class="col-8 col-md-8">
-              <b>Value</b>
+        <% _.each(results, function (result) { %>
+          <div class="container" id="result">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title"><div class="float-start"><%= result.type %></div><div class="float-end"><%= result.ttl %></div></h5>
+              </div>
+              <div class="card-body">
+                <p class="card-text">
+                  <% _.each(result.value, function (answer) { %>
+                    <div><%= formatAnswer( result.type, answer ) %></div>
+                  <% }); %>
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="container" id="result">
-          <% _.each(results, function (result) { %>
-            <div class="row">
-              <div class="col-sm-2 d-none d-sm-block text-wrap"><%= result.name %></div>
-              <div class="col-2 col-sm-1 text-wrap"><%= result.ttl %></div>
-              <div class="col-2 col-sm-1 text-wrap"><%= result.type %></div>
-              <div class="col-8 col-md-8 text-wrap"><%= result.value %></div>
-            </div>
-          <% }); %>
-        </div>
+        <% }); %>
       <% } %>
     </script>
 
