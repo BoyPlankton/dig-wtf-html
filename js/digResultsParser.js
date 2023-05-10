@@ -1,15 +1,3 @@
-function formatA(data) {
-    return "<a href=\"https://talosintelligence.com/reputation_center/lookup?search="+data+"\">"+data+"</a>";
-}
-
-function formatMX(data) {
-    return data.preference + " " + data.exchange;
-}
-
-function formatSOA(data) {
-    return data.mname + ". " + data.rname + ". " + data.serial + " " + data.refresh + " " + data.retry + " " + data.expire + " " + data.minimum;
-}
-
 function parseAnswers(answers) {
     var response = {
         name: "",
@@ -26,6 +14,18 @@ function parseAnswers(answers) {
     });
 
     return response;
+}
+
+function formatA(data) {
+    return "<a href=\"https://talosintelligence.com/reputation_center/lookup?search="+data+"\">"+data+"</a>";
+}
+
+function formatMX(data) {
+    return data.preference + " " + data.exchange;
+}
+
+function formatSOA(data) {
+    return data.mname + ". " + data.rname + ". " + data.serial + " " + data.refresh + " " + data.retry + " " + data.expire + " " + data.minimum;
 }
 
 function formatAnswer(type, answer) {
