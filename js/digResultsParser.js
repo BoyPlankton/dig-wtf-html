@@ -20,6 +20,10 @@ function formatA(data) {
     return "<a href=\"https://talosintelligence.com/reputation_center/lookup?search="+data+"\">"+data+"</a>";
 }
 
+function formatCNAME(data) {
+    return "<a href=\"#/dig/"+data+"\">"+data+"</a>";
+}
+
 function formatMX(data) {
     return data.preference + " " + data.exchange;
 }
@@ -32,6 +36,9 @@ function formatAnswer(type, answer) {
     switch (type) {
         case "A":
             answer = formatA(answer);
+            break;
+        case "CNAME":
+            answer = formatCNAME(answer);
             break;
         case "MX":
             answer = formatMX(answer);
