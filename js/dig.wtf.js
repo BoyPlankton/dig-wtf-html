@@ -1,66 +1,64 @@
-"use strict";
-
-window.APP = window.APP || {};
+window.APP = window.APP || {}
 
 APP.DigModel = Backbone.Model.extend({
-});
+})
 
 APP.DigCollection = Backbone.Collection.extend({
-  model: APP.DigModel,
-});
+  model: APP.DigModel
+})
 
 APP.DigSearchView = Backbone.View.extend({
-  el: $("#searchForm"),
+  el: $('#searchForm'),
 
   events: {
-      // listen for the submit event of the form
-      "submit": "onSubmit",
+    // listen for the submit event of the form
+    'submit': 'onSubmit'
   },
 
-  initialize: function() {
-    this.hostname = $("input[name=hostname]");
+  initialize: function () {
+    this.hostname = $('input[name=hostname]')
   },
 
-  onSubmit: function(e) {
-    e.preventDefault();
+  onSubmit: function (e) {
+    e.preventDefault()
 
-    Backbone.history.navigate('#/dig/' + this.hostname.val(), false);
-  },
-});
+    Backbone.history.navigate('#/dig/' + this.hostname.val(), false)
+  }
+})
 
 APP.DigResultsView = Backbone.View.extend({
   el: $('#results'),
 
   template: _.template($('#digTemplate').html()),
 
-  render: function(){
-    var results = {results: []}
-    this.collection.forEach( c => {
-      results.results.push(c.attributes);
+  render: function () {
+    var results = { results: [] }
+    this.collection.forEach(c => {
+      results.results.push(c.attributes)
     })
-    this.$el.html(this.template(results));
-    return this; // enable chained calls
+    this.$el.html(this.template(results))
+    return this // enable chained calls
   }
-});
+})
 
 APP.DigRouter = Backbone.Router.extend({
   routes: {
-    "dig/:host": "dig"
+    'dig/:host': 'dig'
   },
 
   initialize: function () {
-    this.searchview = new APP.DigSearchView();
-    this.collection = new APP.DigCollection();
-    this.resultview = new APP.DigResultsView({collection: this.collection});
+    this.searchview = new APP.DigSearchView()
+    this.collection = new APP.DigCollection()
+    this.resultview = new APP.DigResultsView({ collection: this.collection })
 
     // start backbone watching url changes
-    Backbone.history.start();
+    Backbone.history.start()
   },
 
   dig: function (host) {
-    var self = this;
-    var timeout = 1000;
-    var url = "https://cloudflare-dns.com/dns-query";
+    var self = this
+    var timeout = 1000
+    var url = 'https://cloudflare-dns.com/dns-query'
 
     /*
     const type_map = {
@@ -153,42 +151,42 @@ APP.DigRouter = Backbone.Router.extend({
     */
 
     const dnsTypes = [
-      {type: "A",     desc: "IPv4 Address"},
-      {type: "NS",    desc: "Name Servers"},
-      {type: "MX",    desc: "Mail Exchange"},
-      {type: "TXT",   desc: "Text"},
-      {type: "AAAA",  desc: "IPv6 Address"}
-    ];
+      { type: 'A', desc: 'IPv4 Address' },
+      { type: 'NS', desc: 'Name Servers' },
+      { type: 'MX', desc: 'Mail Exchange' },
+      { type: 'TXT', desc: 'Text' },
+      { type: 'AAAA', desc: 'IPv6 Address' }
+    ]
 
-    console.log(host);
+    console.log(host)
 
-    const resolver = new doh.DohResolver(url);
+    const resolver = new doh.DohResolver(url)
 
-    this.collection.reset();
+    this.collection.reset()
 
     // if there's a CNAME then there isn't anything else.
-    resolver.query(host, "CNAME", "POST", null, timeout)
+    resolver.query(host, 'CNAME', 'POST', null, timeout)
       .then(response => {
-        console.log(JSON.stringify(response, null, 4));
+        console.log(JSON.stringify(response, null, 4))
 
         if (response.answers.length > 0) {
-          this.collection.add(new APP.DigModel(parseAnswers(response.answers, {type: "CNAME", desc: "Canonical Name"})));
-          this.resultview.render();
+          this.collection.add(new APP.DigModel(parseAnswers(response.answers, { type: 'CNAME', desc: 'Canonical Name' })))
+          this.resultview.render()
         } else {
           _.each(dnsTypes, v => {
-            resolver.query(host, v.type, "POST", null, timeout)
+            resolver.query(host, v.type, 'POST', null, timeout)
               .then(response => {
-                console.log(JSON.stringify(response, null, 4));
-      
+                console.log(JSON.stringify(response, null, 4))
+
                 if (response.answers.length > 0) {
-                  this.collection.add(new APP.DigModel(parseAnswers(response.answers, v)));
-                  this.resultview.render();
+                  this.collection.add(new APP.DigModel(parseAnswers(response.answers, v)))
+                  this.resultview.render()
                 }
               })
-              .catch(console.error);
-          });
+              .catch(console.error)
+          })
         }
       })
-      .catch(console.error);
+      .catch(console.error)
   }
-});
+})
