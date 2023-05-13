@@ -1,9 +1,10 @@
-function parseAnswers(answers) {
+function parseAnswers(answers, dnsType) {
     var response = {
         name: "",
         ttl: 0,
         type: "",
-        value: []
+        value: [],
+        desc: ""
     };
 
     answers.forEach( answer => {
@@ -11,6 +12,7 @@ function parseAnswers(answers) {
         response.ttl = answer.ttl;
         response.type = answer.type;
         response.value.push(answer.data);
+        response.desc = dnsType.desc;
     });
 
     return response;

@@ -152,13 +152,12 @@ APP.DigRouter = Backbone.Router.extend({
     };
     */
 
-    const types = [
-      "A",
-      "AAAA",
-      "NS",
-      "MX",
-      "TXT",
-      "SOA"
+    const dnsTypes = [
+      {type: "A",     desc: "IPv4 Address"},
+      {type: "NS",    desc: "Name Servers"},
+      {type: "MX",    desc: "Mail Exchange"},
+      {type: "TXT",   desc: "Text"},
+      {type: "AAAA",  desc: "IPv6 Address"}
     ];
 
     console.log(host);
@@ -169,27 +168,27 @@ APP.DigRouter = Backbone.Router.extend({
 
     // if there's a CNAME then there isn't anything else.
     resolver.query(host, "CNAME", "POST", null, timeout)
-    .then(response => {
-      console.log(JSON.stringify(response, null, 4));
+      .then(response => {
+        console.log(JSON.stringify(response, null, 4));
 
-      if (response.answers.length > 0) {
-        this.collection.add(new APP.DigModel(parseAnswers(response.answers)));
-        this.resultview.render();
-      } else {
-        types.forEach( v => {
-          resolver.query(host, v, "POST", null, timeout)
-            .then(response => {
-              console.log(JSON.stringify(response, null, 4));
-    
-              if (response.answers.length > 0) {
-                this.collection.add(new APP.DigModel(parseAnswers(response.answers)));
-                this.resultview.render();
-              }
-            })
-            .catch(console.error);
-        });    
-      }
-    })
-    .catch(console.error);
+        if (response.answers.length > 0) {
+          this.collection.add(new APP.DigModel(parseAnswers(response.answers, {type: "CNAME", desc: "Canonical Name"})));
+          this.resultview.render();
+        } else {
+          _.each(dnsTypes, v => {
+            resolver.query(host, v.type, "POST", null, timeout)
+              .then(response => {
+                console.log(JSON.stringify(response, null, 4));
+      
+                if (response.answers.length > 0) {
+                  this.collection.add(new APP.DigModel(parseAnswers(response.answers, v)));
+                  this.resultview.render();
+                }
+              })
+              .catch(console.error);
+          });
+        }
+      })
+      .catch(console.error);
   }
 });
