@@ -78,7 +78,8 @@
           <div class="container mb-3" id="result">
             <div class="card">
               <div class="card-header">
-                <h5 class="card-title"><div class="float-start"><%= result.type %></div><div class="float-end"><%= result.ttl %></div></h5>
+                <h5 class="card-title d-flex"><div class="me-auto"><%= result.type %></div><div><%= result.ttl %></div></h5>
+                <h6 class="card-subtitle text-muted"><%= result.desc %></h6>
               </div>
               <div class="card-body">
                 <p class="card-text">
