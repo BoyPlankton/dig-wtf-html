@@ -1,72 +1,75 @@
 window.APP = window.APP || {}
 
-function parseAnswers (answers, dnsType) {
-  var response = {
-    name: '',
-    ttl: 0,
-    type: '',
-    value: [],
-    desc: ''
+class dnsType {
+  constructor (id, type, desc) {
+    this.id = id
+    this.type = type
+    this.desc = desc
+    this.answers = []
+    this.ttl = 0
+    this.timeout = 1000
+    this.url = 'https://cloudflare-dns.com/dns-query'
+    this.resolver = new doh.DohResolver(this.url)
   }
 
-  answers.forEach(answer => {
-    response.name = answer.name
-    response.ttl = answer.ttl
-    response.type = answer.type
-    response.value.push(answer.data)
-    response.desc = dnsType.desc
-  })
-
-  return response
-}
-
-function formatA (data) {
-  return '<a href="https://talosintelligence.com/reputation_center/lookup?search=' + data + '">' + data + '</a>'
-}
-
-function formatCNAME (data) {
-  return '<a href="#/dig/' + data + '">' + data + '</a>'
-}
-
-function formatMX (data) {
-  return data.preference + ' ' + data.exchange
-}
-
-function formatSOA (data) {
-  return data.mname + '. ' + data.rname + '. ' + data.serial + ' ' + data.refresh + ' ' + data.retry + ' ' + data.expire + ' ' + data.minimum
-}
-
-function formatAnswer (type, answer) {
-  switch (type) {
-    case 'A':
-      answer = formatA(answer)
-      break
-    case 'CNAME':
-      answer = formatCNAME(answer)
-      break
-    case 'MX':
-      answer = formatMX(answer)
-      break
-    case 'SOA':
-      answer = formatSOA(answer)
-      break
+  resolveName(name) {
+    this.resolver.query(name, this.type, 'POST', null, this.timeout)
+      .then(response => {
+        console.log(JSON.stringify(response))
+        if (response.answers.length > 0) {
+          this.ttl = response.answers[0].ttl
+          _.each(response.answers, a => {
+            this.answers.push(a.data)
+          })
+        }
+      })
+      .catch(console.error)
   }
 
-  return answer
+  test() {
+    console.log("test")
+  }
 }
 
-APP.DigModel = Backbone.Model.extend({
-})
+const dnsTypes = [
+  new dnsType(1,   'A',          'IPv4 Address'),
+  new dnsType(2,   'NS',         'Name Servers'),
+  new dnsType(13,  'HINFO',      'Host Information'),
+  new dnsType(15,  'MX',         'Mail Exchange'),
+  new dnsType(16,  'TXT',        'Text'),
+  new dnsType(17,  'RP',         'Responsible Person'),
+  new dnsType(18,  'AFSDB',      'AFS Database Location'),
+  new dnsType(28,  'AAAA',       'IPv6 Address'),
+  new dnsType(29,  'LOC',        'Geographical Location'),
+  new dnsType(33,  'SRV',        'Service Locator'),
+  new dnsType(36,  'KX',         'Key Exchange'),
+  new dnsType(37,  'CERT',       'Certificate'),
+  new dnsType(42,  'APL',        'Address Prefix List'),
+  new dnsType(44,  'SSHFP',      'SSH Public Key Fingerprint'),
+  new dnsType(45,  'IPSECKEY',   'IPsec Key'),
+  new dnsType(49,  'DHCID',      'DHCP Identifier'),
+  new dnsType(52,  'TLSA',       'TLS Certificate Association'),
+  new dnsType(53,  'SMIMEA',     'S/MIME Association'),
+  new dnsType(55,  'HIP',        'Host Identification Protocol'),
+  new dnsType(61,  'OPENPGPKEY', 'OpenPGP Public Key'),
+  new dnsType(64,  'SVCB',       'Service Binding'),
+  new dnsType(65,  'HTTPS',      'HTTPS Binding'),
+  new dnsType(108, 'EUI48',      'MAC Address (EUI-48)'),
+  new dnsType(109, 'EUI64',      'MAC Address (EUI-64)'),
+  new dnsType(256, 'URI',        'Uniform Resource Identifier'),
+  new dnsType(257, 'CAA',        'Certificate Authority Authorization')
+]
 
-APP.DigCollection = Backbone.Collection.extend({
-  model: APP.DigModel
+APP.DigResultModel = Backbone.Model.extend({})
+
+APP.DigResultsCollection = Backbone.Collection.extend({
+  model: APP.DigResultModel
 })
 
 APP.DigSearchView = Backbone.View.extend({
   el: $('#search-form'),
 
   events: {
-    // listen for the submit event of the form
     'submit': 'onSubmit'
   },
 
@@ -86,13 +89,26 @@ APP.DigResultsView = Backbone.View.extend({
 
   template: _.template($('#dig-template').html()),
 
+  initialize: function(options) {
+    this.collection = options.collection;
+
+    _.bindAll(this, 'render');
+
+    this.collection.bind('reset', this.render);
+    this.collection.bind('add', this.render);
+    this.collection.bind('remove', this.render);
+  },
+
   render: function () {
     var results = { results: [] }
+
     this.collection.forEach(c => {
       results.results.push(c.attributes)
     })
+
     this.$el.html(this.template(results))
-    return this // enable chained calls
+    
+    return this
   }
 })
 
@@ -103,48 +119,32 @@ APP.DigRouter = Backbone.Router.extend({
 
   initialize: function () {
     this.searchview = new APP.DigSearchView()
-    this.collection = new APP.DigCollection()
+    this.collection = new APP.DigResultsCollection()
     this.resultview = new APP.DigResultsView({ collection: this.collection })
 
-    // start backbone watching url changes
     Backbone.history.start()
   },
 
-  dig: function (host) {
-    var timeout = 1000
-    var url = 'https://cloudflare-dns.com/dns-query'
-
-    const dnsTypes = [
-      { type: 'A', desc: 'IPv4 Address' },
-      { type: 'NS', desc: 'Name Servers' },
-      { type: 'MX', desc: 'Mail Exchange' },
-      { type: 'TXT', desc: 'Text' },
-      { type: 'AAAA', desc: 'IPv6 Address' }
-    ]
-
-    console.log(host)
-
-    const resolver = new doh.DohResolver(url)
-
+  dig: function (name) {
     this.collection.reset()
 
-    // if there's a CNAME then there isn't anything else.
-    resolver.query(host, 'CNAME', 'POST', null, timeout)
+    resolver = new doh.DohResolver('https://cloudflare-dns.com/dns-query')
+    timeout = 1000
+
+    resolver.query(name, 'CNAME', 'POST', null, timeout)
       .then(response => {
         console.log(JSON.stringify(response, null, 4))
 
         if (response.answers.length > 0) {
-          this.collection.add(new APP.DigModel(parseAnswers(response.answers, { type: 'CNAME', desc: 'Canonical Name' })))
-          this.resultview.render()
+          this.collection.add([{ type: 'CNAME', desc: 'Canonical Name', ttl: response.answers[0].ttl, answers: response.answers }])
         } else {
           _.each(dnsTypes, v => {
-            resolver.query(host, v.type, 'POST', null, timeout)
+            resolver.query(name, v.type, 'POST', null, timeout)
               .then(response => {
                 console.log(JSON.stringify(response, null, 4))
 
                 if (response.answers.length > 0) {
-                  this.collection.add(new APP.DigModel(parseAnswers(response.answers, v)))
-                  this.resultview.render()
+                  this.collection.add([{ type: v.type, desc: v.desc, ttl: response.answers[0].ttl, answers: response.answers }])
                 }
               })
               .catch(console.error)
