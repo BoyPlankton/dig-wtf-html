@@ -82,11 +82,51 @@
                 <h6 class="card-subtitle text-muted"><%= result.desc %></h6>
               </div>
               <div class="card-body">
-                <p class="card-text">
-                  <% _.each(result.value, function (answer) { %>
-                    <div><%= formatAnswer( result.type, answer ) %></div>
-                  <% }); %>
-                </p>
+                <% if (result.type == 'MX') { %>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Preference</th>
+                        <th scope="col">Exchange</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% _.each(result.answers, function (answer) { %>
+                        <tr>
+                          <td><%= answer.data.preference %></td>
+                          <td><%= answer.data.exchange %></td>
+                        </tr>
+                      <% }); %>
+                    </tbody>
+                  </table>
+                <% } else if (result.type == 'CAA') { %>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Flags</th>
+                        <th scope="col">Tag</th>
+                        <th scope="col">Value</th>
+                        <th scope="col">Issuer Critical</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% _.each(result.answers, function (answer) { %>
+                        <tr>
+                          <td><%= answer.data.flags %></td>
+                          <td><%= answer.data.tag %></td>
+                          <td><%= answer.data.value %></td>
+                          <td><%= answer.data.issuerCritical %></td>
+                        </tr>
+                      <% }); %>
+                    </tbody>
+                  </table>
+                <% } else { %>
+                  <p class="card-text">
+                    <% _.each(result.answers, function (answer) { %>
+                      <div><%= answer.data %></div>
+                    <% }); %>
+                  </p>
+                <% } %>
               </div>
             </div>
           </div>
