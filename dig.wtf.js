@@ -40,20 +40,22 @@ const dnsTypes = [
   //new dnsType(17,  'RP',         'Responsible Person'),
   //new dnsType(18,  'AFSDB',      'AFS Database Location'),
   new dnsType(28,  'AAAA',       'IPv6 Address'),
-  //new dnsType(29,  'LOC',        'Geographical Location'),
+  new dnsType(29,  'LOC',        'Geographical Location'),
   //new dnsType(33,  'SRV',        'Service Locator'),
   //new dnsType(36,  'KX',         'Key Exchange'),
   //new dnsType(37,  'CERT',       'Certificate'),
   //new dnsType(42,  'APL',        'Address Prefix List'),
+  new dnsType(43,  'DS',   'Delegation Signer'),
   //new dnsType(44,  'SSHFP',      'SSH Public Key Fingerprint'),
   //new dnsType(45,  'IPSECKEY',   'IPsec Key'),
+  new dnsType(48,  'DNSKEY',   'DNS Key Record'),
   //new dnsType(49,  'DHCID',      'DHCP Identifier'),
   //new dnsType(52,  'TLSA',       'TLS Certificate Association'),
   //new dnsType(53,  'SMIMEA',     'S/MIME Association'),
   //new dnsType(55,  'HIP',        'Host Identification Protocol'),
   //new dnsType(61,  'OPENPGPKEY', 'OpenPGP Public Key'),
   //new dnsType(64,  'SVCB',       'Service Binding'),
-  //new dnsType(65,  'HTTPS',      'HTTPS Binding'),
+  new dnsType(65,  'HTTPS',      'HTTPS Binding'),
   //new dnsType(108, 'EUI48',      'MAC Address (EUI-48)'),
   //new dnsType(109, 'EUI64',      'MAC Address (EUI-64)'),
   //new dnsType(256, 'URI',        'Uniform Resource Identifier'),
@@ -139,6 +141,7 @@ APP.DigRouter = Backbone.Router.extend({
           this.collection.add([{ type: 'CNAME', desc: 'Canonical Name', ttl: response.answers[0].ttl, answers: response.answers }])
         } else {
           _.each(dnsTypes, v => {
+            console.log(v)
             resolver.query(name, v.type, 'POST', null, timeout)
               .then(response => {
                 console.log(JSON.stringify(response, null, 4))

@@ -120,6 +120,81 @@
                       <% }); %>
                     </tbody>
                   </table>
+                <% } else if (result.type == 'LOC') { %>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Version</th>
+                        <th scope="col">Size</th>
+                        <th scope="col">Horizontal Precision</th>
+                        <th scope="col">Vertical Precision</th>
+                        <th scope="col">Latitude</th>
+                        <th scope="col">Longitude</th>
+                        <th scope="col">Altitude</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% _.each(result.answers, function (answer) { %>
+                        <tr>
+                          <td><%= parseInt(answer.data.slice(0,1).toString('hex'), 8) %></td>
+                          <td><%= parseInt(answer.data.slice(1,2).toString('hex'), 8) %></td>
+                          <td><%= parseInt(answer.data.slice(2,3).toString('hex'), 8) %></td>
+                          <td><%= parseInt(answer.data.slice(3,4).toString('hex'), 8) %></td>
+                          <% if (parseInt(answer.data.slice(4,8).toString('hex'), 16) > 2147483648) { %>
+                            <td><%= ((parseInt(answer.data.slice(4,8).toString('hex'), 16) - 2147483648) / 3600000).toFixed(3) %></td>
+                          <% } else { %>
+                            <td><%= ((-1 * parseInt(answer.data.slice(4,8).toString('hex'), 16)) / 3600000).toFixed(3) %></td>
+                          <% } %>
+                          <% if (parseInt(answer.data.slice(8,12).toString('hex'), 16) > 2147483648) { %>
+                            <td><%= ((parseInt(answer.data.slice(8,12).toString('hex'), 16) - 2147483648) / 3600000).toFixed(3) %> E</td>
+                          <% } else { %>
+                            <td><%= ((parseInt(answer.data.slice(8,12).toString('hex'), 16) - 2147483648) / 3600000).toFixed(3) %></td>
+                          <% } %>
+                          <td><%= (parseInt(answer.data.slice(12).toString('hex'), 16) - 10000000) %> cm</td>
+                        </tr>
+                      <% }); %>
+                    </tbody>
+                  </table>
+                <% } else if (result.type == 'DNSKEY') { %>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Flags</th>
+                        <th scope="col">Algorithm</th>
+                        <th scope="col">Key</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% _.each(result.answers, function (answer) { %>
+                        <tr>
+                          <td><%= answer.data.flags %></td>
+                          <td><%= answer.data.algorithm %></td>
+                          <td><%= answer.data.key.toString('base64').replace('=', '') %></td>
+                        </tr>
+                      <% }); %>
+                    </tbody>
+                  </table>
+                <% } else if (result.type == 'DS') { %>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Key Tag</th>
+                        <th scope="col">Algorithm</th>
+                        <th scope="col">Digest Type</th>
+                        <th scope="col">Digest</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% _.each(result.answers, function (answer) { %>
+                        <tr>
+                          <td><%= answer.data.keyTag %></td>
+                          <td><%= answer.data.algorithm %></td>
+                          <td><%= answer.data.digestType %></td>
+                          <td><%= answer.data.digest.toString('hex') %></td>
+                        </tr>
+                      <% }); %>
+                    </tbody>
+                  </table>
                 <% } else { %>
                   <p class="card-text">
                     <% _.each(result.answers, function (answer) { %>
